@@ -1,6 +1,6 @@
 # Installing external dependencies
 ## Pigpio
-* Go to the pigpio folder `pigpio`
+* Go to the pigpio folder `cd pigpio`
 * Unzip the pigpio library contents with `unzip master.zip`
 * Compile the library `make` and install  it `sudo make install`
 * You can check the installation with `pigpiod -v`
