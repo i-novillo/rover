@@ -3,6 +3,7 @@
 
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/rotating_file_sink.h"
+#include "spdlog/sinks/basic_file_sink.h" 
 
 class Logger {
 public:
@@ -10,7 +11,8 @@ public:
     static constexpr size_t MAX_LOG_FILES = 3;          // 3 files
 
     static void initialiseLogger(const std::string& logger_name, const std::string& file_name) {
-        auto rotating_logger = spdlog::rotating_logger_mt(logger_name, file_name, MAX_LOG_SIZE, MAX_LOG_FILES);
+        auto rotating_logger = spdlog::basic_logger_mt(logger_name, file_name);
+        //auto rotating_logger = spdlog::rotating_logger_mt(logger_name, file_name, MAX_LOG_SIZE, MAX_LOG_FILES);
         spdlog::set_default_logger(rotating_logger);
         spdlog::set_level(spdlog::level::debug); // Default log level
         spdlog::set_pattern("[%Y-%m-%d %H:%M:%S] [%^%l%$] %v"); // Example pattern
