@@ -1,11 +1,11 @@
 #include <pigpio.h>
 #include <iostream>
 #include "i2c_bus.hpp"
-#include "../../logger/logger.h"
+#include "logger.h"
 
 int main() {
     // Start the logger
-    Logger::initialiseLogger("test", "test.txt");
+    Logger::initialise_logger("test", "test", ".");
     Logger::info("Test");
 
     // Initialize the pigpio library.

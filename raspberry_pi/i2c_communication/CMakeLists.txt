@@ -1,7 +1,8 @@
 # I2C Headers
 include_directories(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# spdlog
+# Logger and spdlog
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../logger/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../spdlog/include)
 
 # Test executable
