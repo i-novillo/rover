@@ -1,9 +1,8 @@
 # I2C Headers
-include_directories(PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# Logger and spdlog
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../logger/)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../spdlog/include)
+# Other includes
+include_directories(PUBLIC /usr/local/include)
 
 # Test executable
 add_executable(i2c_test test/i2c_test.cpp src/i2c_bus.cpp src/i2c_device.cpp)
@@ -15,8 +14,5 @@ add_executable(i2c_test test/i2c_test.cpp src/i2c_bus.cpp src/i2c_device.cpp)
 # Link pigpio library
 target_link_libraries(i2c_test pigpio)
 
-# Link spdlog compilation
-find_library(SPDLOG_LIB spdlog HINTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../spdlog)
-if(SPDLOG_LIB)
-    target_link_libraries(i2c_test ${SPDLOG_LIB})
-endif()
+# Link logger library
+target_link_libraries(i2c_test logger)

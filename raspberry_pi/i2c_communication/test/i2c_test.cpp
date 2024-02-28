@@ -10,7 +10,7 @@ int main() {
 
     // Initialize the pigpio library.
     if (gpioInitialise() < 0) {
-        std::cerr << "pigpio initialization failed" << std::endl;
+        Logger::error("pigpio initialization failed");
         return 1;
     }
 
