@@ -1,11 +1,16 @@
 #include <pigpio.h>
 #include <iostream>
-#include "../include/i2c_bus.hpp"
+#include "i2c_bus.hpp"
+#include "logger.h"
 
 int main() {
+    // Start the logger
+    Logger::initialise_logger("test", "test", ".");
+    Logger::info("Test");
+
     // Initialize the pigpio library.
     if (gpioInitialise() < 0) {
-        std::cerr << "pigpio initialization failed" << std::endl;
+        Logger::error("pigpio initialization failed");
         return 1;
     }
 
