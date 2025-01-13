@@ -17,3 +17,8 @@
 * You can check the installation with `pigpiod -v`
 * The _pigpio daemon_ needs to be started to run pigpio. You can start it by running `sudo pigpiod`, and you can stop
   the daemon with `sudo killall pigpiod`
+
+## ROS2
+* Follow the documentation in ROS2 installation page (for ubuntu 22.04): `https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html`
+* Follow the environment setup section before running ROS: `https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Configuring-ROS2-Environment.html`
+* Follow the colcon installation tutorial: `https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html`
