@@ -1,5 +1,5 @@
-#include "i2c_bus.hpp"
-#include "i2c_device.hpp"
+#include "i2c_manager/i2c_bus.hpp"
+#include "i2c_manager/i2c_device.hpp"
 
 I2C_Bus::I2C_Bus() : devices() {}
 
