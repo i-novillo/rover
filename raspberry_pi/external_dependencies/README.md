@@ -22,3 +22,10 @@
 * Follow the documentation in ROS2 installation page (for ubuntu 22.04): `https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html`
 * Follow the environment setup section before running ROS: `https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Configuring-ROS2-Environment.html`
 * Follow the colcon installation tutorial: `https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html`
+
+## Docker Cross-Compilation of ROS
+* The idea is to use the multi-platform build concept explained in ROS2 Humble docs: `https://docs.ros.org/en/humble/How-To-Guides/Cross-compilation.html` 
+* Docker needs to be installed `https://docs.docker.com/desktop/setup/install/linux/`
+* For the initial setup, go to the raspberry_pi folder to build the docker image using `docker buildx build --platform linux/arm64 -t ros2_aarch64:latest --load .`
+* From then on, cross-compile can be performed by launching the script `raspi_deployment.sh`
+* Cross-compile requires the Raspberry to be on, as binaries are automatically copied to it via SCP. IP, directories and Username need to be updated in the deployment script.

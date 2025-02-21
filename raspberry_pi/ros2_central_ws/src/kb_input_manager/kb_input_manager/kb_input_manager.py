@@ -11,7 +11,7 @@ class KeyboardInputNode(Node):
     def __init__(self):
         super().__init__('keyboard_input_node')
         self.publisher = self.create_publisher(MotorInput, 'motor_input', 10)
-        self.timer = self.create_timer(0.1, self.check_keyboard_input)
+        self.timer = self.create_timer(0.05, self.check_keyboard_input)
         self.get_logger().info("Keyboard input node initialized. Use 'w', 'a', 's', 'd' to control. Press 'q' to quit.")
 
         # Configure terminal for non-blocking input
@@ -31,24 +31,24 @@ class KeyboardInputNode(Node):
     def process_key(self, key):
         # Map keys to directions
         key_mapping = {
-            'w': 'up',
+            'w': 'forward',
             'a': 'left',
-            's': 'down',
+            's': 'backward',
             'd': 'right',
+            'z': 'stop'
         }
 
         if key in key_mapping:
             direction = key_mapping[key]
             self.publish_key(direction)
         else:
-            self.get_logger().warn(f"Key '{key}' is not mapped to any direction.")
+            self.get_logger().warn(f"Key '{key}' is not mapped to any rover input.")
 
     def publish_key(self, direction):
         # Create and publish the message
         msg = MotorInput()
         msg.rover_direction = direction
         self.publisher.publish(msg)
-        self.get_logger().info(f"Published direction: {direction}")
 
     def destroy_node(self):
         # Restore the terminal settings when the node is destroyed

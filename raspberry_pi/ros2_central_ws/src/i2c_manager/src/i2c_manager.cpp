@@ -20,10 +20,14 @@ class I2CManager : public rclcpp::Node
         }
 
     private:
-        void received_i2c_message(const interfaces::msg::I2C & i2c_msg) const
+        void received_i2c_message(const interfaces::msg::I2C & i2c_msg)
         {
-            RCLCPP_INFO(this->get_logger(), "I heard: '%s'", i2c_msg.i2c_message.c_str());
-            //TODO: Use the I2C bus to send a message through the corresponding i2c interface
+            RCLCPP_INFO(this->get_logger(), "I2C message received. Sending to Arduino.");
+            for(int i=0; i<4; i++) {
+                int16_t speed = i2c_msg.motor_speeds[i];
+                char* speed_bytes = reinterpret_cast<char*>(&speed);
+                bus.write_data("Arduino", speed_bytes, sizeof(int16_t));
+            }
         }
 
         rclcpp::Subscription<interfaces::msg::I2C>::SharedPtr i2c_messages_;
