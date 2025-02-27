@@ -5,6 +5,11 @@
 #include "interfaces/msg/i2_c.hpp"
 #include "i2c_manager/i2c_bus.hpp"
 
+const int I2C_MSG_SIZE = 32;
+const int I2C_MSG_ID_POSITION = 0;
+
+const int MOTOR_SPEEDS_ID = 0x01;
+
 class I2CManager : public rclcpp::Node
 {
     public:
@@ -23,12 +28,20 @@ class I2CManager : public rclcpp::Node
         void received_i2c_message(const interfaces::msg::I2C & i2c_msg)
         {
             RCLCPP_INFO(this->get_logger(), "I2C message received. Sending to Arduino.");
+            char msg[I2C_MSG_SIZE];
+            msg[I2C_MSG_ID_POSITION] = MOTOR_SPEEDS_ID;
+
             for(int i=0; i<4; i++) {
                 int16_t speed = i2c_msg.motor_speeds[i];
-                char* speed_bytes = reinterpret_cast<char*>(&speed);
-                bus.write_data("Arduino", speed_bytes, sizeof(int16_t));
+                int motor_position = (2*i) + 1;
+                msg[motor_position] = (speed >> 8) & 0xFF;
+                msg[motor_position + 1] = speed & 0xFF;
+
+                bus.write_data("Arduino", speed_bytes, I2C_MSG_SIZE);
             }
         }
+
+        char* create_i2c_motor_msg()
 
         rclcpp::Subscription<interfaces::msg::I2C>::SharedPtr i2c_messages_;
         I2C_Bus bus;
