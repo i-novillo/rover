@@ -1,47 +1,25 @@
 #include "motor_controller.h"
-//#include "i2c_controller.h"
-#include <Wire.h>
+#include "i2c_manager.h"
 
-const int motor_1[] = {10, 9, 8};
-const int i2cAddress = 0x01;
-int motor_speed = 0;
+const Motor motor_1 = {0, {1, 2}};
+const Motor motor_2 = {3, {4, 5}};
+const Motor motor_3 = {6, {7, 8}};
+const Motor motor_4 = {9, {10, 11}};
+
+const Motor motors[] = {motor_1, motor_2, motor_3, motor_4};
+const int i2c_slave_address = 0x01;
+
+const Motor_Controller motor_controller = Motor_Controller(&motors[0], 4);
+const I2C_Manager i2c_manager = I2C_Manager(i2c_slave_address, motor_controller);
 
 void setup() {
-  motor_setup(motor_1);
-  i2c_setup(i2cAddress);
+  motor_controller.motor_setup();
+  i2c_manager.i2c_setup();
 
   Serial.begin(115200);
   Serial.println("Aduino As Motor Controller demonstration");
 }
 
 void loop() {
-  move_motor(motor_1, motor_speed);
   delay(10);
-}
-
-void i2c_setup(int device_address){
-  Wire.begin(i2cAddress);
-
-  // Function to run when data received from master
-  Wire.onReceive(receiveEvent);
-}
-
-void receiveEvent(int howMany) {
-  int i = 0;
-  int number = 0;
-  int speeds_received[4];
-  while (Wire.available()) { // loop through all but the last
-    char c = Wire.read();    // receive byte as a character
-    number = number << (8*i);
-    number += c;  
-  }
-
-  if (number < 0) {
-    motor_speed = -motor_speed;
-  }
-  motor_speed = number / 10;
-
-  Serial.print("Motor commands received: ");
-  Serial.print(number);
-  Serial.println(); // to newline
 }
