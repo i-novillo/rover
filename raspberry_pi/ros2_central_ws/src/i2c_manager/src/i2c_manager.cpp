@@ -29,19 +29,20 @@ class I2CManager : public rclcpp::Node
         {
             RCLCPP_INFO(this->get_logger(), "I2C message received. Sending to Arduino.");
             char msg[I2C_MSG_SIZE];
-            msg[I2C_MSG_ID_POSITION] = MOTOR_SPEEDS_ID;
+            create_i2c_motor_msg(msg, i2c_msg.motor_speeds);
+            bus.write_data("Arduino", msg, I2C_MSG_SIZE);
+            
+        }
 
+        void create_i2c_motor_msg(char * msg, const std::array<int16_t, 4>& motor_speeds) {
+            msg[I2C_MSG_ID_POSITION] = MOTOR_SPEEDS_ID;
             for(int i=0; i<4; i++) {
-                int16_t speed = i2c_msg.motor_speeds[i];
+                int16_t speed = motor_speeds[i];
                 int motor_position = (2*i) + 1;
                 msg[motor_position] = (speed >> 8) & 0xFF;
                 msg[motor_position + 1] = speed & 0xFF;
-
-                bus.write_data("Arduino", speed_bytes, I2C_MSG_SIZE);
             }
         }
-
-        char* create_i2c_motor_msg()
 
         rclcpp::Subscription<interfaces::msg::I2C>::SharedPtr i2c_messages_;
         I2C_Bus bus;
