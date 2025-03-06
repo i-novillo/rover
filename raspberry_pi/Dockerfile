@@ -62,4 +62,3 @@ RUN chmod +x /usr/local/bin/cross_compile_entrypoint.sh
 
 # Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/cross_compile_entrypoint.sh"]
-
