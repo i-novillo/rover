@@ -30,7 +30,7 @@ add_executable(i2c_manager
 ament_target_dependencies(i2c_manager rclcpp interfaces)
 
 # Link pigpio library
-target_link_libraries(i2c_manager pigpio)
+target_link_libraries(i2c_manager pigpiod_if2)
 
 # Install header files
 install(

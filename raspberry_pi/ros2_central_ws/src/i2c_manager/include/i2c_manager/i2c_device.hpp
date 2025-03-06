@@ -4,11 +4,14 @@
 class I2C_Device {
 
 private:    
-    int address;
+    unsigned address;
     int handle;
+    static int pi;
+    static int pigpio_initialized;
     
 public:
     I2C_Device() = default;
+    //~I2C_Device();
 
     /**
     * @brief Initializes a new device connected via I2C

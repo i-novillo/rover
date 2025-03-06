@@ -1,5 +1,5 @@
 #include <memory>
-#include <pigpio.h>
+#include <pigpiod_if2.h>
 #include <iostream>
 #include "rclcpp/rclcpp.hpp"
 #include "interfaces/msg/i2_c.hpp"
@@ -16,7 +16,6 @@ class I2CManager : public rclcpp::Node
         I2CManager()
         : Node("i2c_manager"), bus()
         {
-            gpioInitialise();
             i2c_messages_ = this->create_subscription<interfaces::msg::I2C>(
                 "i2c_messages", 10, std::bind(&I2CManager::received_i2c_message, this, std::placeholders::_1));
                 RCLCPP_INFO(this->get_logger(), "I2C Manager Node started");
@@ -53,7 +52,6 @@ int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<I2CManager>());
-    gpioTerminate();
     rclcpp::shutdown();
     return 0;
 }
