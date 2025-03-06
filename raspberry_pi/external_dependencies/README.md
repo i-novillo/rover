@@ -29,3 +29,4 @@
 * For the initial setup, go to the raspberry_pi folder to build the docker image using `docker buildx build --platform linux/arm64 -t ros2_aarch64:latest --load .`
 * From then on, cross-compile can be performed by launching the script `raspi_deployment.sh`
 * Cross-compile requires the Raspberry to be on, as binaries are automatically copied to it via SCP. IP, directories and Username need to be updated in the deployment script.
+* If you get errors related to `exec /bin/bash: exec format error` ensure QEMU is properly setup in the host machine with: `sudo apt-get install qemu-user-static` and then `sudo update-binfmts --enable`
