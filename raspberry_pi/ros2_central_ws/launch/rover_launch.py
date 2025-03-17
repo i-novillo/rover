@@ -12,5 +12,10 @@ def generate_launch_description():
             package='motor_manager',
             executable='motor_manager',
             name='motor_manager'
+        ),
+        Node(
+            package='bt_manager',
+            executable='bt_manager',
+            name='bt_manager'
         )
     ])

@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'kb_input_manager'
+package_name = 'bt_manager'
 
 setup(
     name=package_name,
@@ -15,12 +15,12 @@ setup(
     zip_safe=True,
     maintainer='ignacio',
     maintainer_email='ignovillo1@gmail.com',
-    description='Test package to register keyboard inputs to move the rover',
+    description='Package to handle bluetooth inputs',
     license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'kb_input_manager = kb_input_manager.kb_input_manager:main',
+            'bt_manager = bt_manager.bt_manager:main',
         ],
     },
 )
