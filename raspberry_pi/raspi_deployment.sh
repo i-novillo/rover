@@ -1,7 +1,7 @@
 #!/bin/bash
 
 RASPBERRY_USER="ignacio"
-RASPBERRY_IP="192.168.1.161"
+RASPBERRY_IP="192.168.1.40"
 ROS2_LOCAL_WORKSPACE="/home/ign/Code/rover/raspberry_pi/ros2_central_ws"
 INSTALL_TARGET_FOLDER="/home/ignacio/Code/rover/raspberry_pi/ros2_central_ws"
 

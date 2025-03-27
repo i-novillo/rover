@@ -13,11 +13,13 @@ class BTManagerNode(Node):
         self.get_logger().info("Bluetooth Manager node initialized.")
 
     def check_bt_input(self):
-        msg = MotorInput()
-        msg.rover_direction = self.bt_server.receive_message()
-        if msg.rover_direction:
-            self.get_logger().info(f"Received message: {msg.rover_direction}")
-            #self.publisher.publish(msg)
+        if self.bt_server.connected:
+            msg_received = self.bt_server.receive_message()
+            if msg_received is not None:
+                msg = MotorInput()
+                msg.rover_direction = msg_received
+                self.get_logger().info(f"Received message: {msg.rover_direction}")
+                self.publisher.publish(msg)
 
 def main(args=None):
     rclpy.init(args=args)
