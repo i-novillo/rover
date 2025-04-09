@@ -10,7 +10,10 @@ class BTServer:
         self.server.bind((RASPBERRY_BT_MAC_ADDRESS, RASPBERRY_BT_CHANNEL))
         self.server.listen(1)
         self.ros_logger = rclpy.logging.get_logger("bt_manager_node")
-        self.ros_logger.info("Bluetooth server initialized. Awaiting client connection")
+        self.ros_logger.info("Bluetooth server initialized")
+        self.connected = False
+
+    def await_client_connection(self):
         self.client, self.client_addr = self.server.accept()
         self.ros_logger.info(f"Accepted connection from {self.client_addr} ({self.client}).")
         self.connected = True  # Add a flag to track connection status
@@ -29,7 +32,7 @@ class BTServer:
                 self.client.close()
                 return None
 
-            return data.decode('utf-8')
+            return data
 
         except ConnectionResetError:
             # Client disconnected abruptly (connection reset by peer)
