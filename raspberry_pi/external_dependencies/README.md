@@ -30,3 +30,13 @@
 * From then on, cross-compile can be performed by launching the script `raspi_deployment.sh`
 * Cross-compile requires the Raspberry to be on, as binaries are automatically copied to it via SCP. IP, directories and Username need to be updated in the deployment script.
 * If you get errors related to `exec /bin/bash: exec format error` ensure QEMU is properly setup in the host machine with: `sudo apt-get install qemu-user-static` and then `sudo update-binfmts --enable`
+
+
+## Bluetooth
+* If bluetooth is not working, it's possible the BT interface needs to be set to discoverable. For that, do `bluetoothctl` and then `discoverable on`
+For the previous to happen automatically on startup of the raspberry, the best solution I found is to create a service. Follow these steps:
+* Make the `bluetooth_discoverable.sh` executable with `chmod +x bluetooth_ctl.sh`
+* Copy the service file, `bluetooth-discoverable.service` to `/etc/systemd/system/bluetooth-discoverable.service`
+* Enable the service `sudo systemctl enable bluetooth-discoverable.service`
+* Start the service `sudo systemctl start bluetooth-discoverable.service`
+* Reboot and check that it works with `bluetoothctl` and then `show`
