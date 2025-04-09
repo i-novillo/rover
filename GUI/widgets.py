@@ -66,7 +66,8 @@ class WASD(QWidget):
                     action = self.window.key_commands[key]
                     if key not in self.key_pressed or not self.key_pressed[key]:
                         self.key_pressed[key] = True
-                        print(f"Key pressed: {action}")
+                        # DEBUG
+                        # print(f"Key pressed: {action}")
                         self.window.bt_client.send_move_cmd(action)
                         for key_obj in self.window.keys:
                             if key_obj.key == self.get_key_char(key):

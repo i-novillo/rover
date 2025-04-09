@@ -31,7 +31,7 @@ class MotorManager : public rclcpp::Node
     private:
         void received_motor_input(const interfaces::msg::MotorInput & motor_input_msg) const
         {
-            RCLCPP_INFO(this->get_logger(), "I heard: '%s'", motor_input_msg.rover_direction.c_str());
+            RCLCPP_DEBUG(this->get_logger(), "I heard: '%s'", motor_input_msg.rover_direction.c_str());
             std::array<int16_t,4> motor_speeds;
 
             if (direction_to_motor_speeds.find(motor_input_msg.rover_direction) != direction_to_motor_speeds.end()) {
