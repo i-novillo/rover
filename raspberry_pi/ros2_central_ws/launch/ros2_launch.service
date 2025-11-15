@@ -1,0 +1,19 @@
+[Unit]
+After=network-online.target
+Description=Rover ROS2 Automatic Launch
+
+[Service]
+User=ignacio
+Group=ignacio
+WorkingDirectory=/home/ignacio/Code/rover/raspberry_pi/ros2_central_ws/
+Environment="ROS_DOMAIN_ID=0"
+
+ExecStart=/bin/bash -c " \
+	source /opt/ros/humble/setup.bash && \
+	source /home/ignacio/Code/rover/raspberry_pi/ros2_central_ws/install/setup.bash && \
+	ros2 launch /home/ignacio/Code/rover/raspberry_pi/ros2_central_ws/launch/rover_launch.py \
+"
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
