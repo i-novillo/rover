@@ -27,11 +27,13 @@ class I2C_Manager {
             switch (msg_type) {
                 case 1:
                     Serial.println("Motor speeds received");
+                    int motor_speeds[] = {0, 0, 0, 0};
                     for (int i = 0; i < 4; i++) {
                         int motor_index = (i * 2) + 1;
                         int motor_speed = (int)((unsigned char)raw_bytes[motor_index] << 8 | (unsigned char)raw_bytes[motor_index + 1]);
-                        this->motor_controller.move_motor(i, motor_speed);
+                        motor_speeds[i] = motor_speed;    
                     }
+                    this->motor_controller.move_motors(motor_speeds);
                     break;
 
                 default:

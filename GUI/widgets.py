@@ -60,6 +60,8 @@ class WASD(QWidget):
 
         def eventFilter(self, widget, event):
             if event.type() == QEvent.KeyPress:
+                if event.isAutoRepeat():
+                    return True    
                 key = event.key()
 
                 if key in self.window.key_commands:
@@ -77,12 +79,16 @@ class WASD(QWidget):
                         return True
 
             elif event.type() == QEvent.KeyRelease:
+                if event.isAutoRepeat():
+                    return True
                 key = event.key()
 
                 if key in self.window.key_commands:
                     action = self.window.key_commands[key]
                     if key in self.key_pressed:
                         self.key_pressed[key] = False
+                        if True not in self.key_pressed.values():
+                            self.window.bt_client.send_move_cmd("stop")
                         for key_obj in self.window.keys:
                             if key_obj.key == self.get_key_char(key):
                                 key_obj.set_color(self.original_colors[key_obj.key])
