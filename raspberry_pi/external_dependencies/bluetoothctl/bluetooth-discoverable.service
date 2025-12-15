@@ -1,0 +1,10 @@
+[Unit]
+Description=Enable Bluetooth Discoverability
+
+[Service]
+Type=oneshot
+ExecStart=/home/ignacio/Code/rover/raspberry_pi/external_dependencies/bluetoothctl/bluetooth_discoverable.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
