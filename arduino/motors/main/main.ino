@@ -9,17 +9,20 @@ const Motor motor_4 = {8, 9};
 const Motor motors[] = {motor_1, motor_2, motor_3, motor_4};
 const int i2c_slave_address = 0x01;
 
-const Motor_Controller motor_controller = Motor_Controller(&motors[0], 4);
-const I2C_Manager i2c_manager = I2C_Manager(i2c_slave_address, motor_controller);
+Motor_Controller motor_controller = Motor_Controller(&motors[0], 4);
+I2C_Manager i2c_manager = I2C_Manager(i2c_slave_address, motor_controller);
 
 void setup() {
   motor_controller.motor_setup();
   i2c_manager.i2c_setup();
 
   Serial.begin(115200);
-  Serial.println("Aduino As Motor Controller demonstration");
+  Serial.println("Arduino As Motor Controller demonstration");
 }
 
 void loop() {
-  delay(10);
+  // Actively check if we've heard from the master in the last 1000ms
+  i2c_manager.check_timeout();
+  
+  delay(10); 
 }
