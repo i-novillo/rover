@@ -5,12 +5,12 @@
 #include "motor_controller.h"
 #include <AS5600.h>
 
-static const uint8_t encoder_channels[4] = {0, 1, 2, 7};
-
 class I2C_Manager {
     public:
         I2C_Manager(const int device_address, Motor_Controller& motor_controller) 
-            : i2c_address(device_address), motor_controller(motor_controller), last_msg_time(0) {};
+            : i2c_address(device_address), 
+              motor_controller(motor_controller), 
+              last_msg_time(0) {}
 
         void parse_i2c_msg(int howMany) {
             char raw_bytes[32]; 
@@ -20,11 +20,10 @@ class I2C_Manager {
                 raw_bytes[byte_count++] = Wire.read();
             }
 
-            if (byte_count != 32) {
-                return;
-            }
-        
-            // Update timestamp upon receiving a valid message
+            Serial.println("Move message received");
+
+            if (byte_count != 32) return;
+
             last_msg_time = millis();
 
             int msg_type = (int)raw_bytes[0];
@@ -47,15 +46,8 @@ class I2C_Manager {
                 this->motor_controller.move_motors(stop_speeds);
             }
 
-            Serial.print("Encoder readings -> ");
-            for (int encoder_index = 0; encoder_index < 4; encoder_index++) {
-                read_encoder(encoder_index);
-                Serial.print("Motor ");
-                Serial.print(encoder_index);
-                Serial.print(": ");
-                Serial.print(motor_angles[encoder_index]);
-                Serial.print("  ");
-            }
+            // 👇 Read encoder every time we check timeout
+            read_encoder();
         }
 
         void i2c_setup() {
@@ -63,19 +55,17 @@ class I2C_Manager {
             Wire.onReceive(I2C_Manager::static_onReceive);
             instance = this;
 
-            delay(100);
+            delay(100); // let I2C settle
 
             // --- Encoder init ---
-            for (int encoder_index = 0; encoder_index < 4; encoder_index++) {
-                tcaSelect(encoder_index);
-                delay(10);
+            tcaSelect(ENCODER_CHANNEL);
+            delay(10);
 
-                last_raw[encoder_index] = encoder.readAngle();
+            last_raw = encoder.readAngle();
 
-                output_zero_offset[encoder_index] =
-                    (last_raw[encoder_index] * 360.0 / COUNTS_PER_REV) / GEAR_RATIO;
-            }
-        
+            output_zero_offset =
+                (last_raw * 360.0 / COUNTS_PER_REV) / GEAR_RATIO;
+
             last_msg_time = millis();
         };
 
@@ -91,11 +81,11 @@ class I2C_Manager {
         static constexpr float GEAR_RATIO = 270.0;
         static constexpr float COUNTS_PER_REV = 4096.0;
         static const uint8_t TCA_ADDR = 0x70;
+        static const uint8_t ENCODER_CHANNEL = 2;
 
-        long motor_revs[4] = {0, 0, 0, 0};
-        uint16_t last_raw[4] = {0, 0, 0, 0};
-        float motor_angles[4] = {0.0, 0.0, 0.0, 0.0};
-        float output_zero_offset[4] = {0.0, 0.0, 0.0, 0.0};
+        long motor_revs = 0;
+        uint16_t last_raw = 0;
+        float output_zero_offset = 0.0;
 
         void tcaSelect(uint8_t i) {
             if (i > 7) return;
@@ -105,32 +95,38 @@ class I2C_Manager {
             Wire.endTransmission();
         }
 
-        void read_encoder(const uint8_t encoder_index) {
-            tcaSelect(encoder_channels[encoder_index]);
+        void read_encoder() {
+            tcaSelect(ENCODER_CHANNEL);
 
             uint16_t raw = encoder.readAngle();
 
-            int diff = raw - last_raw[encoder_index];
+            int diff = raw - last_raw;
 
             if (diff > 2048) {
-                motor_revs[encoder_index]--;
+                motor_revs--;
             }
             else if (diff < -2048) {
-                motor_revs[encoder_index]++;
+                motor_revs++;
             }
 
-            last_raw[encoder_index] = raw;
+            last_raw = raw;
 
             float motor_angle_deg =
-                (motor_revs[encoder_index] * 360.0) +
+                (motor_revs * 360.0) +
                 (raw * 360.0 / COUNTS_PER_REV);
 
             float output_angle_deg =
-                (motor_angle_deg / GEAR_RATIO) - output_zero_offset[encoder_index];
+                (motor_angle_deg / GEAR_RATIO) - output_zero_offset;
 
             float plot_angle = fmod(output_angle_deg, 360.0);
             if (plot_angle < 0) plot_angle += 360.0;
-            motor_angles[encoder_index] = plot_angle;
+
+            // Debug output (optional)
+            Serial.print(plot_angle);
+            Serial.print(" ");
+            Serial.print(0);
+            Serial.print(" ");
+            Serial.println(360);
         }
 
         static void static_onReceive(int howMany) {
