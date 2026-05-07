@@ -29,8 +29,8 @@ static const uint8_t encoder_channels[] = {0, 1, 2, 7}; // TODO: Make configurab
 static encoder_data_t encoder_buffer_a;
 static encoder_data_t encoder_buffer_b;
 
-static encoder_data_t* write_buf;
-static encoder_data_t* read_buf;
+static encoder_data_t* encoder_write_buf;
+static encoder_data_t* encoder_read_buf;
 
 static i2c_master_bus_handle_t i2c_bus_handle;
 static i2c_master_dev_handle_t encoder_handle;
@@ -114,22 +114,22 @@ static bool read_encoder_data(void)
 
             float motor_position = motor_counts[i] * rad_per_count;
 
-            write_buf->motor_positions[i] = motor_position;
+            encoder_write_buf->motor_positions[i] = motor_position;
             
             float motor_velocity =
                 diff * rad_per_count * 1e6f / (float)dt;
             
-            write_buf->motor_velocities[i] = motor_velocity;
+            encoder_write_buf->motor_velocities[i] = motor_velocity;
         }
     }
 
-    write_buf->valid_data = result;
-    write_buf->timestamp = now;
+    encoder_write_buf->valid_data = result;
+    encoder_write_buf->timestamp = now;
     last_meas_time = now;
 
-    encoder_data_t* tmp_buf = read_buf;
-    read_buf = write_buf;
-    write_buf = tmp_buf;
+    encoder_data_t* tmp_buf = encoder_read_buf;
+    encoder_read_buf = encoder_write_buf;
+    encoder_write_buf = tmp_buf;
 
     return result;
 }
@@ -161,8 +161,8 @@ bool setup_sensor_manager()
     ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus_handle, &encoder_dev_config, &encoder_handle));
     ESP_ERROR_CHECK(i2c_master_bus_add_device(i2c_bus_handle, &tca_dev_config, &tca_handle));
 
-    write_buf = &encoder_buffer_a;
-    read_buf  = &encoder_buffer_b;
+    encoder_write_buf = &encoder_buffer_a;
+    encoder_read_buf  = &encoder_buffer_b;
     last_meas_time = esp_timer_get_time();
     
     bool init_ok = false;
@@ -197,6 +197,6 @@ void start_sensor_manager()
 bool get_encoder_data(encoder_data_t* out)
 {
     if (out == NULL) return false;
-    *out = *read_buf;
+    *out = *encoder_read_buf;
     return true;
 }

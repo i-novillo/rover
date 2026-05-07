@@ -4,18 +4,30 @@
 #include "esp_log.h"
 
 #include "sensor_manager.h"
+#include "telecommand_interface.h"
 
 #define TAG "MAIN"
 
 void app_main(void)
 {
+    bool setup_succesful = true;
+
     if (!setup_sensor_manager()) {
-        ESP_LOGE(TAG, "Sensor manager failed to initialize. Restarting system in 1s...");
+        ESP_LOGE(TAG, "Sensor manager failed");
+        setup_succesful = false;
+    }
 
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    if (!setup_telecommand_interface()) {
+        ESP_LOGE(TAG, "Telecommand interface failed");
+        setup_succesful = false;
+    }
 
+    if (!setup_succesful) {
+        ESP_LOGE(TAG, "Critical subsystem setup failed. Restarting...");
+        vTaskDelay(pdMS_TO_TICKS(500));
         esp_restart();
     }
 
     start_sensor_manager();
+    start_telecommand_interface();
 }

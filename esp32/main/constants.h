@@ -5,3 +5,4 @@
 #define GEAR_RATIO            270 // TODO: update to experimentally obtained values
 #define PI                    3.14159265359f
 #define MS                    1000
+#define I2C_TC_BODY_SIZE      31 // bytes
