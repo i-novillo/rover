@@ -1,6 +1,6 @@
 # Autonomous Rover
 
-## CAD Designs
+## Project documentation
 Detailed documentation for this project can be found in the associated [Notion project](https://www.notion.so/Rover-1b4110cebf894cdeb37a57d280ebe3f8?source=copy_link).
 
 ## CAD Designs

@@ -36,8 +36,8 @@ static i2c_master_bus_handle_t i2c_bus_handle;
 static i2c_master_dev_handle_t encoder_handle;
 static i2c_master_dev_handle_t tca_handle;
 
-static int32_t motor_counts[NUM_MOTORS] = {0, 0, 0, 0};
-static uint16_t last_raw[NUM_MOTORS] = {0, 0, 0, 0};
+static int32_t motor_counts[MOTOR_COUNT] = {0, 0, 0, 0};
+static uint16_t last_raw[MOTOR_COUNT] = {0, 0, 0, 0};
 static int64_t last_meas_time = 0;
 
 static const uint8_t as5600_raw_angle_register = 0x0C;
@@ -83,10 +83,10 @@ static bool as5600_read_angle(uint16_t* angle, uint8_t encoder_channel)
 
 static bool read_encoder_data(void)
 {
-    uint16_t raw_angle[NUM_MOTORS];
+    uint16_t raw_angle[MOTOR_COUNT];
     bool result = false;
 
-    for (int i = 0; i < NUM_MOTORS; i++) {
+    for (int i = 0; i < MOTOR_COUNT; i++) {
         result = as5600_read_angle(&raw_angle[i], encoder_channels[i]);
 
         if (!result) {
@@ -100,7 +100,7 @@ static bool read_encoder_data(void)
     if (dt <= 0) dt = 1;
 
     if (result) {
-        for (int i = 0; i < NUM_MOTORS; i++) {
+        for (int i = 0; i < MOTOR_COUNT; i++) {
             int32_t diff = (int32_t)raw_angle[i] - (int32_t)last_raw[i];
 
             if (diff > AS5600_HALF_ROTATION)
@@ -132,6 +132,16 @@ static bool read_encoder_data(void)
     encoder_write_buf = tmp_buf;
 
     return result;
+}
+
+static void xSensorSamplingTask(void *pvParameters)
+{
+    TickType_t last_wake_time = xTaskGetTickCount();
+ 
+    while (1) {
+        read_encoder_data();
+        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(MS / SENSOR_SAMPLE_FREQ));
+    }
 }
 
 bool setup_sensor_manager()
@@ -176,17 +186,6 @@ bool setup_sensor_manager()
     }
 
     return init_ok;
-}
-
-
-static void xSensorSamplingTask(void *pvParameters)
-{
-    TickType_t last_wake_time = xTaskGetTickCount();
- 
-    while (1) {
-        read_encoder_data();
-        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(MS / SENSOR_SAMPLE_FREQ));
-    }
 }
 
 void start_sensor_manager()

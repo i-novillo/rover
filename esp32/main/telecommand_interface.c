@@ -24,24 +24,19 @@ typedef struct __attribute__((packed)) {
     uint8_t body[I2C_TC_BODY_SIZE];
 } telecommand_t;
 
-typedef struct {
-    int16_t motor_1_speed;
-    int16_t motor_2_speed;
-    int16_t motor_3_speed;
-    int16_t motor_4_speed;
-} motor_speeds_t;
 
-static motor_speeds_t motor_speeds_buffer_a;
-static motor_speeds_t motor_speeds_buffer_b;
+static motor_velocities_t motor_velocities_buffer_a;
+static motor_velocities_t motor_velocities_buffer_b;
 
-static motor_speeds_t* motor_speeds_write_buf;
-static motor_speeds_t* motor_speeds_read_buf;
+static motor_velocities_t* motor_velocities_write_buf;
 
 static i2c_slave_dev_handle_t slave_handle;
 static TaskHandle_t tc_interface_handle;
 static telecommand_t latest_tc;
 
 static uint8_t i2c_timeout_count = 0;
+
+static TaskHandle_t motor_controller_handle;
 
 static bool i2c_slave_receive_cb(i2c_slave_dev_handle_t i2c_slave, const i2c_slave_rx_done_event_data_t *evt_data, void *arg)
 {
@@ -56,6 +51,53 @@ static bool i2c_slave_receive_cb(i2c_slave_dev_handle_t i2c_slave, const i2c_sla
     vTaskNotifyGiveFromISR(tc_interface_handle, &xTaskWoken);
     
     return xTaskWoken;
+}
+
+static void process_latest_tc(void) {
+    telecommand_t tmp = latest_tc;
+
+    switch (tmp.msg_id) {
+        case 1:
+            motor_velocities_t motor_velocities;
+
+            memcpy(&motor_velocities, tmp.body, sizeof(motor_velocities));
+            
+            *motor_velocities_write_buf = motor_velocities;
+
+            motor_velocities_t* tmp_buf = motor_velocities_read_buf;
+            motor_velocities_read_buf = motor_velocities_write_buf;
+            motor_velocities_write_buf = tmp_buf;
+            
+            BaseType_t xTaskWoken = pdFALSE;
+            vTaskNotifyGive(motor_controller_handle, &xTaskWoken);
+            vportYIELD(xTaskWoken);
+
+            break;
+        default:
+            break;
+    }
+}
+
+static void xTelecommandInterfaceTask(void *pvParameters)
+{
+    while (1) {
+        if (ulTaskNotifyTake(pdFALSE, pdMS_TO_TICKS(I2C_TIMEOUT)) == pdTRUE) {
+            ESP_LOGD(TAG, "I2C message received");
+            process_latest_tc();
+            i2c_timeout_count = 0;
+        } else {
+            i2c_timeout_count++;
+            if (i2c_timeout_count > MAX_I2C_TIMEOUT_COUNT) {
+                motor_velocities_t zero = {0};
+
+                *motor_velocities_write_buf = zero;
+
+                motor_velocities_t* tmp = motor_velocities_read_buf;
+                motor_velocities_read_buf = motor_velocities_write_buf;
+                motor_velocities_write_buf = tmp;
+            }
+        }
+    }
 }
 
 bool setup_telecommand_interface(void) {
@@ -77,52 +119,10 @@ bool setup_telecommand_interface(void) {
     ESP_ERROR_CHECK(i2c_new_slave_device(&i2c_slv_config, &slave_handle));
     ESP_ERROR_CHECK(i2c_slave_register_event_callbacks(slave_handle, &cbs, NULL));
 
-    motor_speeds_write_buf = &motor_speeds_buffer_a;
-    motor_speeds_read_buf  = &motor_speeds_buffer_b;
+    motor_velocities_write_buf = &motor_velocities_buffer_a;
+    motor_velocities_read_buf  = &motor_velocities_buffer_b;
 
     return true;
-}
-
-static void process_latest_tc(void) {
-    telecommand_t tmp = latest_tc;
-
-    switch (tmp.msg_id) {
-        case 1:
-            motor_speeds_t motor_speeds;
-
-            memcpy(&motor_speeds, tmp.body, sizeof(motor_speeds));
-            
-            *motor_speeds_write_buf = motor_speeds;
-
-            motor_speeds_t* tmp_buf = motor_speeds_read_buf;
-            motor_speeds_read_buf = motor_speeds_write_buf;
-            motor_speeds_write_buf = tmp_buf;
-            break;
-        default:
-            break;
-    }
-}
-
-static void xTelecommandInterfaceTask(void *pvParameters)
-{
-    while (1) {
-        if (ulTaskNotifyTake(pdFALSE, pdMS_TO_TICKS(I2C_TIMEOUT)) == pdTRUE) {
-            ESP_LOGD(TAG, "I2C message received");
-            process_latest_tc();
-            i2c_timeout_count = 0;
-        } else {
-            i2c_timeout_count++;
-            if (i2c_timeout_count > MAX_I2C_TIMEOUT_COUNT) {
-                motor_speeds_t zero = {0};
-
-                *motor_speeds_write_buf = zero;
-
-                motor_speeds_t* tmp = motor_speeds_read_buf;
-                motor_speeds_read_buf = motor_speeds_write_buf;
-                motor_speeds_write_buf = tmp;
-            }
-        }
-    }
 }
 
 void start_telecommand_interface()

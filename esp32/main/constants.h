@@ -1,4 +1,4 @@
-#define NUM_MOTORS            4
+#define MOTOR_COUNT            4
 #define AS5600_RESOLUTION     4096
 #define AS5600_HALF_ROTATION  2048
 #define FULL_ROTATION_DEG     360
