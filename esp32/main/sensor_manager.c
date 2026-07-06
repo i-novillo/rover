@@ -4,7 +4,6 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "driver/i2c_master.h"
-#include "constants.h"
 
 #define I2C_MASTER_SCL_IO           13         // TODO: Make configurable
 #define I2C_MASTER_SDA_IO           14         // TODO: Make configurable

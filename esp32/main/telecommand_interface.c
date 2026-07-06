@@ -1,14 +1,10 @@
 #include "telecommand_interface.h"
 
-#include <stdio.h>
 #include <string.h>
 #include "esp_log.h"
-#include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
-#include "freertos/task.h"
 #include "driver/i2c_slave.h"
 #include "driver/i2c_types.h"
-#include "constants.h"
 
 #define I2C_SLAVE_SCL_IO            15         // TODO: Make configurable
 #define I2C_SLAVE_SDA_IO            16         // TODO: Make configurable
@@ -29,6 +25,7 @@ static motor_velocities_t motor_velocities_buffer_a;
 static motor_velocities_t motor_velocities_buffer_b;
 
 static motor_velocities_t* motor_velocities_write_buf;
+motor_velocities_t* motor_velocities_read_buf;
 
 static i2c_slave_dev_handle_t slave_handle;
 static TaskHandle_t tc_interface_handle;
@@ -68,9 +65,7 @@ static void process_latest_tc(void) {
             motor_velocities_read_buf = motor_velocities_write_buf;
             motor_velocities_write_buf = tmp_buf;
             
-            BaseType_t xTaskWoken = pdFALSE;
-            vTaskNotifyGive(motor_controller_handle, &xTaskWoken);
-            vportYIELD(xTaskWoken);
+            xTaskNotifyGive(motor_controller_handle);
 
             break;
         default:
@@ -125,7 +120,8 @@ bool setup_telecommand_interface(void) {
     return true;
 }
 
-void start_telecommand_interface()
+void start_telecommand_interface(TaskHandle_t motor_controller_task)
 {
+    motor_controller_handle = motor_controller_task;
     xTaskCreate(xTelecommandInterfaceTask, "Telecommand Interface", 4096, NULL, 3, &tc_interface_handle);
 }

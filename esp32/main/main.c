@@ -5,6 +5,7 @@
 
 #include "sensor_manager.h"
 #include "telecommand_interface.h"
+#include "motor_controller.h"
 
 #define TAG "MAIN"
 
@@ -13,12 +14,17 @@ void app_main(void)
     bool setup_succesful = true;
 
     if (!setup_sensor_manager()) {
-        ESP_LOGE(TAG, "Sensor manager failed");
+        ESP_LOGE(TAG, "Sensor manager setup failed");
         setup_succesful = false;
     }
 
     if (!setup_telecommand_interface()) {
-        ESP_LOGE(TAG, "Telecommand interface failed");
+        ESP_LOGE(TAG, "Telecommand interface setup failed");
+        setup_succesful = false;
+    }
+
+    if (!setup_motor_controller()) {
+        ESP_LOGE(TAG, "Motor Controller setup failed");
         setup_succesful = false;
     }
 
@@ -29,5 +35,8 @@ void app_main(void)
     }
 
     start_sensor_manager();
-    start_telecommand_interface();
+    start_motor_controller();
+    TaskHandle_t motor_controller_handle = get_motor_controller_handle();
+    start_telecommand_interface(motor_controller_handle);
+    
 }

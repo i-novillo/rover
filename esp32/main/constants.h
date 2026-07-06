@@ -1,3 +1,6 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
 #define MOTOR_COUNT            4
 #define AS5600_RESOLUTION     4096
 #define AS5600_HALF_ROTATION  2048
@@ -6,3 +9,10 @@
 #define PI                    3.14159265359f
 #define MS                    1000
 #define I2C_TC_BODY_SIZE      31 // bytes
+
+#define FRONT_LEFT_IDX 1
+#define FRONT_RIGHT_IDX 1
+#define BACK_LEFT_IDX 1
+#define BACK_RIGHT_IDX 1
+
+#endif // CONSTANTS_H

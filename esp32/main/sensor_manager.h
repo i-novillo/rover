@@ -2,10 +2,11 @@
 #define SENSOR_MANAGER_H
 
 #include <stdio.h>
+#include "constants.h"
 
 typedef struct {
-    int32_t motor_positions[4];
-    int32_t motor_velocities[4];
+    int32_t motor_positions[MOTOR_COUNT];
+    int32_t motor_velocities[MOTOR_COUNT];
     int64_t timestamp;
     bool valid_data;
 } encoder_data_t;
